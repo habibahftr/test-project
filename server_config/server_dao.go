@@ -8,4 +8,10 @@ func (s *serverAttribute) InitDao() {
 	result.bookDao = dao.NewBookDao(
 		s.DBConnection,
 	)
+
+	result.userDao = dao.NewUserDao(
+		s.DBConnection,
+	)
+
+	s.ListDao = result
 }

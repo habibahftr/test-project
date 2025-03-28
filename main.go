@@ -32,6 +32,8 @@ func main() {
 	endpoints := endpoint.NewEndpoint(
 		r,
 		serverAttribute.DBConnection,
+		serverAttribute.Services.BookService,
+		serverAttribute.Services.SessionService,
 	)
 
 	endpoint.InitEndpoints(&endpoints)

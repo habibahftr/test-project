@@ -21,6 +21,7 @@ func (s *serverAttribute) Init() (err error) {
 	}()
 
 	s.InitDao()
+	s.InitService()
 
 	return err
 }
