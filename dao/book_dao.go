@@ -69,7 +69,7 @@ func (d BookDao) GetListDao(
 		FROM 
 			books `
 
-	query += "LIMIT $1 OFFSET $2"
+	query += "LIMIT $1 OFFSET $2 WHERE deleted = FALSE "
 	offset := CountOffset(int(page.Int64), int(limit.Int64))
 	param := []interface{}{
 		limit.Int64, offset,
@@ -118,7 +118,7 @@ func (d BookDao) GetBookById(
 			created_by, created_at, updated_by, 
 			updated_at 
 		FROM books 
-		WHERE id = $1 `
+		WHERE id = $1 AND deleted = FALSE `
 
 	param := []interface{}{id}
 	err = d.db.QueryRow(query, param...).Scan(
@@ -143,14 +143,14 @@ func (d BookDao) GetBookByIdForUpdate(
 	query :=
 		`SELECT 
 			id, updated_at, created_by, 
-			created_at
+			created_at, quantity, name
 		FROM books 
-		WHERE id = $1 FOR UPDATE`
+		WHERE id = $1 AND deleted = FALSE FOR UPDATE`
 
 	param := []interface{}{id}
 	err = d.db.QueryRow(query, param...).Scan(
 		&result.ID, &result.UpdatedAt, &result.CreatedBy,
-		&result.CreatedAt,
+		&result.CreatedAt, &result.Quantity, &result.Name,
 	)
 
 	if err != nil && err != sql.ErrNoRows {

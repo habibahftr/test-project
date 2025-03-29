@@ -14,7 +14,7 @@ func (s bookService) GetBook(
 	var err error
 	bookId, err := strconv.Atoi(context.Param("id"))
 	if err != nil {
-		context.JSON(http.StatusBadRequest, dto2.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto2.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed " + err.Error(),
 		})
@@ -23,7 +23,7 @@ func (s bookService) GetBook(
 
 	response, err := s.bookDao.GetBookById(int64(bookId))
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, dto2.ResponseAPI{
+		context.JSON(http.StatusInternalServerError, dto2.ResponseBody{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed - Internal Server Error",
 		})
@@ -31,7 +31,7 @@ func (s bookService) GetBook(
 	}
 
 	if response.ID.Int64 == 0 {
-		context.JSON(http.StatusBadRequest, dto2.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto2.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed - Data Not Found",
 		})
@@ -48,7 +48,7 @@ func (s bookService) GetBook(
 		UpdatedAt: response.UpdatedAt.Time,
 	}
 
-	context.JSON(http.StatusOK, dto2.ResponseAPI{
+	context.JSON(http.StatusOK, dto2.ResponseBody{
 		Status:  http.StatusOK,
 		Message: "Success",
 		Data:    result,

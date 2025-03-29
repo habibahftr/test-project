@@ -34,6 +34,7 @@ func main() {
 		serverAttribute.DBConnection,
 		serverAttribute.Services.BookService,
 		serverAttribute.Services.SessionService,
+		serverAttribute.Services.LoanService,
 	)
 
 	endpoint.InitEndpoints(&endpoints)

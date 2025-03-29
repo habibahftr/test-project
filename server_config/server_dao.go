@@ -13,5 +13,9 @@ func (s *serverAttribute) InitDao() {
 		s.DBConnection,
 	)
 
+	result.loanDao = dao.NewLoanDao(
+		s.DBConnection,
+	)
+
 	s.ListDao = result
 }

@@ -18,14 +18,14 @@ type UserDao struct {
 }
 
 func (d UserDao) GetUserForLogin(
-	model repository.UserModel,
+	model repository.UsersModel,
 ) (
-	result repository.UserModel,
+	result repository.UsersModel,
 	err error,
 ) {
 	query :=
 		`SELECT 
-			id, name
+			id, name, email
 		FROM users 
 		WHERE username = $1 AND password = $2 
 		  AND deleted = FALSE FOR UPDATE `
@@ -33,7 +33,7 @@ func (d UserDao) GetUserForLogin(
 	param := []interface{}{
 		model.Username.String, model.Password.String}
 	err = d.db.QueryRow(query, param...).Scan(
-		&result.ID, &result.Name,
+		&result.ID, &result.Name, &result.Email,
 	)
 
 	if err != nil && err != sql.ErrNoRows {

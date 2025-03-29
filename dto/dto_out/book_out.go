@@ -12,7 +12,7 @@ type BookResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type ListBook struct {
+type ListBookResponse struct {
 	ID        int64     `json:"id"`
 	Name      string    `json:"name"`
 	Quantity  int       `json:"quantity"`

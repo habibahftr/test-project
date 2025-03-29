@@ -19,19 +19,20 @@ func (s bookService) InsertBook(
 	var dtoIn dto_in.BookRequest
 	err = context.ShouldBindJSON(&dtoIn)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, dto.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed " + err.Error(),
 		})
 		return
 	}
 
+	userID := context.MustGet("userID").(int64)
 	bookModel := repository.BookModel{
 		Name:      sql.NullString{String: dtoIn.Name},
 		Quantity:  sql.NullInt16{Int16: int16(dtoIn.Quantity)},
-		CreatedBy: sql.NullInt64{},
+		CreatedBy: sql.NullInt64{Int64: userID},
 		CreatedAt: sql.NullTime{Time: timeNow},
-		UpdatedBy: sql.NullInt64{},
+		UpdatedBy: sql.NullInt64{Int64: userID},
 		UpdatedAt: sql.NullTime{Time: timeNow},
 	}
 
@@ -52,7 +53,7 @@ func (s bookService) InsertBook(
 	var id int64
 	id, err = s.bookDao.InsertBook(tx, bookModel)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, dto.ResponseAPI{
+		context.JSON(http.StatusInternalServerError, dto.ResponseBody{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed - Internal Server Error",
 		})
@@ -69,7 +70,7 @@ func (s bookService) InsertBook(
 		UpdatedAt: bookModel.UpdatedAt.Time,
 	}
 
-	context.JSON(http.StatusOK, dto.ResponseAPI{
+	context.JSON(http.StatusOK, dto.ResponseBody{
 		Status:  http.StatusOK,
 		Message: "Success",
 		Data:    result,

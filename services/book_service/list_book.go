@@ -15,7 +15,7 @@ func (s bookService) GetListBook(
 	var err error
 	page, err := strconv.Atoi(context.DefaultQuery("page", "1"))
 	if err != nil {
-		context.JSON(http.StatusBadRequest, dto2.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto2.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed " + err.Error(),
 		})
@@ -24,7 +24,7 @@ func (s bookService) GetListBook(
 
 	limit, err := strconv.Atoi(context.DefaultQuery("limit", "10"))
 	if err != nil {
-		context.JSON(http.StatusBadRequest, dto2.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto2.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed " + err.Error(),
 		})
@@ -36,16 +36,16 @@ func (s bookService) GetListBook(
 		sql.NullInt64{Int64: int64(limit)},
 	)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, dto2.ResponseAPI{
+		context.JSON(http.StatusInternalServerError, dto2.ResponseBody{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed - Internal Server Error",
 		})
 		return
 	}
 
-	result := []dto_out.ListBook{}
+	result := []dto_out.ListBookResponse{}
 	for _, book := range response {
-		result = append(result, dto_out.ListBook{
+		result = append(result, dto_out.ListBookResponse{
 			ID:        book.ID.Int64,
 			Name:      book.Name.String,
 			Quantity:  int(book.Quantity.Int16),
@@ -54,7 +54,7 @@ func (s bookService) GetListBook(
 		})
 	}
 
-	context.JSON(http.StatusOK, dto2.ResponseAPI{
+	context.JSON(http.StatusOK, dto2.ResponseBody{
 		Status:  http.StatusOK,
 		Message: "Success",
 		Data:    result,

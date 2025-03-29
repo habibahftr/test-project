@@ -21,7 +21,7 @@ func (s sessionService) Login(
 	var dtoIn dto_in.LoginRequest
 	err = context.ShouldBindJSON(&dtoIn)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, dto2.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto2.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed " + err.Error(),
 		})
@@ -29,14 +29,14 @@ func (s sessionService) Login(
 	}
 
 	pass := base64.StdEncoding.EncodeToString([]byte(dtoIn.Password))
-	userModel := repository.UserModel{
+	userModel := repository.UsersModel{
 		Username: sql.NullString{String: dtoIn.Username},
 		Password: sql.NullString{String: pass},
 	}
 
 	userOnDb, err := s.userDao.GetUserForLogin(userModel)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, dto2.ResponseAPI{
+		context.JSON(http.StatusInternalServerError, dto2.ResponseBody{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed - Internal Server Error",
 		})
@@ -44,7 +44,7 @@ func (s sessionService) Login(
 	}
 
 	if userOnDb.ID.Int64 == 0 {
-		context.JSON(http.StatusBadRequest, dto2.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto2.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed - User Not Found ",
 		})
@@ -53,18 +53,18 @@ func (s sessionService) Login(
 	var jwtKey = []byte("secret_key")
 	expiredAt := time.Now().Add(24 * time.Hour)
 
-	tokenModel := repository.PayloadJWTToken{
+	tokenModel := &repository.PayloadJWTToken{
 		UserID: userOnDb.ID.Int64,
-		Claims: jwt.RegisteredClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiredAt),
 			Subject:   strconv.Itoa(int(userOnDb.ID.Int64)),
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenModel.Claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, tokenModel)
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, dto2.ResponseAPI{
+		context.JSON(http.StatusInternalServerError, dto2.ResponseBody{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed - Cannot generate token",
 		})
@@ -74,10 +74,11 @@ func (s sessionService) Login(
 	result := dto_out.LoginResponse{
 		Username: dtoIn.Username,
 		Password: "***",
-		Name:     userOnDb.Name.string,
+		Name:     userOnDb.Name.String,
+		Email:    userOnDb.Email.String,
 	}
 
-	context.JSON(http.StatusOK, dto2.ResponseAPI{
+	context.JSON(http.StatusOK, dto2.ResponseBody{
 		Status:  http.StatusOK,
 		Message: "Success",
 		Data:    result,

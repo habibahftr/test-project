@@ -20,22 +20,23 @@ func (s bookService) DeleteBook(
 	var dtoIn dto_in.DeleteBook
 	err = context.ShouldBindJSON(&dtoIn)
 	if err != nil {
-		context.JSON(http.StatusBadRequest, dto2.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto2.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed " + err.Error(),
 		})
 		return
 	}
 
+	userID := context.MustGet("userID").(int64)
 	bookModel := repository.BookModel{
 		ID:        sql.NullInt64{Int64: int64(bookId)},
-		DeletedBy: sql.NullInt64{},
+		DeletedBy: sql.NullInt64{Int64: userID},
 		DeletedAt: sql.NullTime{Time: timeNow},
 	}
 
 	bookOnDb, err := s.bookDao.GetBookByIdForUpdate(bookModel.ID.Int64)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, dto2.ResponseAPI{
+		context.JSON(http.StatusInternalServerError, dto2.ResponseBody{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed - Internal Server Error",
 		})
@@ -43,7 +44,7 @@ func (s bookService) DeleteBook(
 	}
 
 	if bookOnDb.ID.Int64 == 0 {
-		context.JSON(http.StatusBadRequest, dto2.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto2.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed - Data Not Found",
 		})
@@ -53,7 +54,7 @@ func (s bookService) DeleteBook(
 	t1 := bookOnDb.UpdatedAt.Time.Format(time.RFC3339)
 	t2 := dtoIn.UpdatedAt.Format(time.RFC3339)
 	if t1 != t2 {
-		context.JSON(http.StatusBadRequest, dto2.ResponseAPI{
+		context.JSON(http.StatusBadRequest, dto2.ResponseBody{
 			Status:  http.StatusBadRequest,
 			Message: "Failed - Data Locked",
 		})
@@ -76,14 +77,14 @@ func (s bookService) DeleteBook(
 
 	err = s.bookDao.DeleteBook(tx, bookModel)
 	if err != nil {
-		context.JSON(http.StatusInternalServerError, dto2.ResponseAPI{
+		context.JSON(http.StatusInternalServerError, dto2.ResponseBody{
 			Status:  http.StatusInternalServerError,
 			Message: "Failed - Internal Server Error",
 		})
 		return
 	}
 
-	context.JSON(http.StatusOK, dto2.ResponseAPI{
+	context.JSON(http.StatusOK, dto2.ResponseBody{
 		Status:  http.StatusOK,
 		Message: "Success",
 	})

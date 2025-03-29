@@ -7,11 +7,11 @@ import (
 )
 
 type Claims struct {
-	Username string `json:"username"`
+	UserId int64 `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
-var jwtKey = []byte("your_secret_key")
+var jwtKey = []byte("secret_key")
 
 func AuthMiddleware(c *gin.Context) {
 	tokenString := c.GetHeader("Authorization")
@@ -32,6 +32,6 @@ func AuthMiddleware(c *gin.Context) {
 		return
 	}
 
-	c.Set("username", claims.Username)
+	c.Set("userID", claims.UserId)
 	c.Next()
 }

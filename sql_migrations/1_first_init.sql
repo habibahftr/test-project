@@ -49,6 +49,13 @@ CREATE TABLE "loans"
     quantity   INT,
     date_start DATE,
     date_end   DATE,
+    created_by BIGINT,
+    created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_by BIGINT,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_by BIGINT,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted    BOOLEAN         DEFAULT FALSE,
     CONSTRAINT pk_loans_id PRIMARY KEY (id),
     CONSTRAINT fk_user_loan FOREIGN KEY (user_id) REFERENCES users (id),
     CONSTRAINT fk_book_loan FOREIGN KEY (book_id) REFERENCES books (id)
